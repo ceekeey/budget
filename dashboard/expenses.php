@@ -101,50 +101,58 @@ if (isset($_GET['edit_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expenses - Budget Tracker</title>
+    <title>Expenses | Budget Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: { 700: '#1e293b', 800: '#0f172a', 900: '#020617', 950: '#010409' }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-navy-950 text-white min-h-screen font-sans">
     <?php include '../includes/sidebar.php'; ?>
     <?php include '../includes/header.php'; ?>
 
-    <main class="ml-64 p-6">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Expenses</h1>
+    <main class="ml-64 p-8">
+        <div class="flex justify-between items-end mb-10">
+            <div>
+                <h1 class="text-4xl font-extrabold text-white tracking-tight">Transaction Log</h1>
+                <p class="text-gray-400 mt-2">View and manage your recent spending activity.</p>
+            </div>
             <button onclick="showAddModal()"
-                class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition duration-200">
-                + Add Expense
+                class="bg-teal-500 hover:bg-teal-400 text-navy-950 px-6 py-3 rounded-2xl font-bold shadow-lg shadow-teal-500/20 transition-all duration-300 transform hover:-translate-y-1">
+                <i class="fas fa-plus mr-2"></i> Add Expense
             </button>
         </div>
 
-        <!-- Success/Error Messages -->
         <?php if (isset($_GET['success'])): ?>
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <div class="bg-teal-500/10 border border-teal-500/20 text-teal-400 px-6 py-4 rounded-2xl mb-8 flex items-center">
+                <i class="fas fa-check-circle mr-3"></i>
                 <?php echo htmlspecialchars($_GET['success']); ?>
             </div>
         <?php endif; ?>
 
-        <?php if (isset($_GET['error'])): ?>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                <?php echo htmlspecialchars($_GET['error']); ?>
-            </div>
-        <?php endif; ?>
-
-        <!-- Expenses Table -->
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden backdrop-blur-md">
             <div class="overflow-x-auto">
-                <table class="w-full table-auto">
+                <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-gray-50">
-                            <th class="px-6 py-4 text-left text-sm font-medium text-gray-700">Date</th>
-                            <th class="px-6 py-4 text-left text-sm font-medium text-gray-700">Category</th>
-                            <th class="px-6 py-4 text-left text-sm font-medium text-gray-700">Description</th>
-                            <th class="px-6 py-4 text-right text-sm font-medium text-gray-700">Amount</th>
-                            <th class="px-6 py-4 text-left text-sm font-medium text-gray-700">Actions</th>
+                        <tr class="border-b border-white/10">
+                            <th class="px-8 py-6 text-xs font-bold text-gray-500 uppercase tracking-widest">Date</th>
+                            <th class="px-8 py-6 text-xs font-bold text-gray-500 uppercase tracking-widest">Category</th>
+                            <th class="px-8 py-6 text-xs font-bold text-gray-500 uppercase tracking-widest">Description</th>
+                            <th class="px-8 py-6 text-xs font-bold text-gray-500 uppercase tracking-widest text-right">Amount</th>
+                            <th class="px-8 py-6 text-xs font-bold text-gray-500 uppercase tracking-widest text-center">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-white/5">
                         <?php
                         $stmt = $pdo->prepare("
                             SELECT e.*, bc.category_name 
@@ -156,249 +164,174 @@ if (isset($_GET['edit_id'])) {
                         $stmt->execute([$_SESSION['user_id']]);
                         $expenses = $stmt->fetchAll();
 
-                        if (empty($expenses)) {
-                            echo '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-600">
-                                <div class="flex flex-col items-center">
-                                    <span class="text-4xl mb-2">💸</span>
-                                    <p class="text-lg">No expenses found</p>
-                                    <p class="text-sm text-gray-500 mt-1">Start tracking your expenses by adding your first one!</p>
-                                </div>
-                            </td></tr>';
-                        } else {
+                        if (empty($expenses)): ?>
+                            <tr>
+                                <td colspan="5" class="px-8 py-20 text-center">
+                                    <div class="bg-white/5 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <i class="fas fa-receipt text-gray-600 text-2xl"></i>
+                                    </div>
+                                    <p class="text-gray-400 text-lg">No expenses recorded yet.</p>
+                                </td>
+                            </tr>
+                        <?php else: 
                             $total_amount = 0;
-                            foreach ($expenses as $expense) {
+                            foreach ($expenses as $expense): 
                                 $total_amount += $expense['amount'];
-                                echo "<tr class='border-b hover:bg-gray-50'>
-                                    <td class='px-6 py-4 whitespace-nowrap'>" . date('M j, Y', strtotime($expense['expense_date'])) . "</td>
-                                    <td class='px-6 py-4'>
-                                        <span class='bg-orange-100 text-orange-600 px-2 py-1 rounded text-sm whitespace-nowrap'>{$expense['category_name']}</span>
-                                    </td>
-                                    <td class='px-6 py-4 max-w-xs truncate' title='{$expense['description']}'>{$expense['description']}</td>
-                                    <td class='px-6 py-4 text-right font-medium text-red-600 whitespace-nowrap'>₦" . number_format($expense['amount'], 2) . "</td>
-                                    <td class='px-6 py-4 whitespace-nowrap'>
-                                        <button onclick='showEditModal(" . json_encode($expense) . ")' 
-                                                class='text-blue-500 hover:text-blue-700 mr-3 transition duration-200'>
-                                            Edit
-                                        </button>
-                                        <button onclick='confirmDelete({$expense['id']}, \"₦" . number_format($expense['amount'], 2) . "\", \"" . date('M j, Y', strtotime($expense['expense_date'])) . "\")' 
-                                                class='text-red-500 hover:text-red-700 transition duration-200'>
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>";
-                            }
-
-                            // Total row
-                            echo "<tr class='bg-gray-50 font-semibold'>
-                                <td colspan='3' class='px-6 py-4 text-right'>Total:</td>
-                                <td class='px-6 py-4 text-right text-red-600'>₦" . number_format($total_amount, 2) . "</td>
-                                <td class='px-6 py-4'></td>
-                            </tr>";
-                        }
                         ?>
+                            <tr class="hover:bg-white/[0.03] transition-colors group">
+                                <td class="px-8 py-5">
+                                    <span class="text-sm font-medium text-gray-300">
+                                        <?php echo date('M d, Y', strtotime($expense['expense_date'])); ?>
+                                    </span>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold tracking-tighter bg-teal-500/10 text-teal-400 border border-teal-500/20 uppercase">
+                                        <i class="fas fa-tag mr-1.5 text-[8px]"></i>
+                                        <?php echo $expense['category_name']; ?>
+                                    </span>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <p class="text-sm text-white font-medium truncate max-w-xs">
+                                        <?php echo $expense['description'] ?: '<span class="text-gray-600 italic">No description</span>'; ?>
+                                    </p>
+                                </td>
+                                <td class="px-8 py-5 text-right">
+                                    <span class="text-base font-black text-white">
+                                        ₦<?php echo number_format($expense['amount'], 2); ?>
+                                    </span>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div class="flex justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick='showEditModal(<?php echo json_encode($expense); ?>)' 
+                                            class="p-2 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button onclick='confirmDelete(<?php echo $expense['id']; ?>, "₦<?php echo number_format($expense['amount'], 2); ?>", "<?php echo date('M d, Y', strtotime($expense['expense_date'])); ?>")'
+                                            class="p-2 hover:bg-red-500/10 rounded-xl text-gray-400 hover:text-red-500 transition">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                            <tr class="bg-white/[0.02]">
+                                <td colspan="3" class="px-8 py-6 text-right text-xs font-bold text-gray-500 uppercase tracking-widest">Total Expenses</td>
+                                <td class="px-8 py-6 text-right">
+                                    <span class="text-xl font-black text-teal-400">₦<?php echo number_format($total_amount, 2); ?></span>
+                                </td>
+                                <td></td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Add Expense Modal -->
-        <div id="addExpenseModal"
-            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded-xl shadow-2xl p-6 w-96 max-h-[90vh] overflow-y-auto">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Add New Expense</h3>
-                <form method="POST">
-                    <input type="hidden" name="add_expense" value="1">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                            <select name="category_id" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                <option value="">Select Category</option>
-                                <?php
-                                $stmt = $pdo->prepare("SELECT * FROM budget_categories WHERE user_id = ? ORDER BY category_name");
-                                $stmt->execute([$_SESSION['user_id']]);
-                                $categories = $stmt->fetchAll();
-                                foreach ($categories as $category) {
-                                    echo "<option value='{$category['id']}'>{$category['category_name']}</option>";
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-                            <input type="number" name="amount" step="0.01" min="0.01" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                placeholder="0.00">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <input type="text" name="description"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                placeholder="Enter description (optional)">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                            <input type="date" name="expense_date" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                value="<?php echo date('Y-m-d'); ?>">
-                        </div>
-                    </div>
-                    <div class="flex space-x-3 mt-6">
-                        <button type="submit"
-                            class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium transition duration-200">
-                            Add Expense
-                        </button>
-                        <button type="button" onclick="hideAddModal()"
-                            class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg font-medium transition duration-200">
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Edit Expense Modal -->
-        <div id="editExpenseModal"
-            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded-xl shadow-2xl p-6 w-96 max-h-[90vh] overflow-y-auto">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Edit Expense</h3>
-                <form method="POST">
-                    <input type="hidden" name="edit_expense" value="1">
-                    <input type="hidden" name="expense_id" id="edit_expense_id">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                            <select name="category_id" id="edit_category_id" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                <option value="">Select Category</option>
-                                <?php
-                                $stmt = $pdo->prepare("SELECT * FROM budget_categories WHERE user_id = ? ORDER BY category_name");
-                                $stmt->execute([$_SESSION['user_id']]);
-                                $categories = $stmt->fetchAll();
-                                foreach ($categories as $category) {
-                                    echo "<option value='{$category['id']}'>{$category['category_name']}</option>";
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-                            <input type="number" name="amount" id="edit_amount" step="0.01" min="0.01" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <input type="text" name="description" id="edit_description"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                            <input type="date" name="expense_date" id="edit_expense_date" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
-                        </div>
-                    </div>
-                    <div class="flex space-x-3 mt-6">
-                        <button type="submit"
-                            class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium transition duration-200">
-                            Update Expense
-                        </button>
-                        <button type="button" onclick="hideEditModal()"
-                            class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg font-medium transition duration-200">
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Delete Confirmation Modal -->
-        <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded-xl shadow-2xl p-6 w-96">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Confirm Delete</h3>
-                <p class="text-gray-600 mb-4" id="deleteMessage">Are you sure you want to delete this expense?</p>
-                <div class="flex space-x-3">
-                    <a href="#" id="deleteConfirmLink"
-                        class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg font-medium text-center transition duration-200">
-                        Delete
-                    </a>
-                    <button type="button" onclick="hideDeleteModal()"
-                        class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg font-medium transition duration-200">
-                        Cancel
-                    </button>
+        <div id="expenseModal" class="hidden fixed inset-0 bg-navy-950/80 backdrop-blur-sm flex items-center justify-center z-[60]">
+            <div class="bg-navy-900 border border-white/10 rounded-[2.5rem] shadow-2xl p-8 w-full max-w-md">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 id="modalTitle" class="text-2xl font-bold text-white tracking-tight">Add Expense</h3>
+                    <button onclick="hideModal()" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
                 </div>
+                
+                <form method="POST" id="expenseForm">
+                    <input type="hidden" name="add_expense" id="form_action_type" value="1">
+                    <input type="hidden" name="expense_id" id="modal_expense_id">
+                    
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Category</label>
+                            <select name="category_id" id="modal_category_id" required
+                                class="w-full bg-navy-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50 appearance-none transition">
+                                <option value="">Select Category</option>
+                                <?php
+                                $stmt = $pdo->prepare("SELECT * FROM budget_categories WHERE user_id = ? ORDER BY category_name");
+                                $stmt->execute([$_SESSION['user_id']]);
+                                $categories = $stmt->fetchAll();
+                                foreach ($categories as $cat) {
+                                    echo "<option value='{$cat['id']}'>{$cat['category_name']}</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Amount (₦)</label>
+                            <input type="number" name="amount" id="modal_amount" step="0.01" min="0.01" required
+                                class="w-full bg-navy-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition font-mono">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Description</label>
+                            <input type="text" name="description" id="modal_description" placeholder="What was this for?"
+                                class="w-full bg-navy-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Date</label>
+                            <input type="date" name="expense_date" id="modal_expense_date" required
+                                class="w-full bg-navy-800 border border-white/5 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submitBtn"
+                        class="w-full mt-10 bg-teal-500 hover:bg-teal-400 text-navy-950 py-4 rounded-2xl font-black tracking-widest transition-all shadow-lg shadow-teal-500/10">
+                        SAVE TRANSACTION
+                    </button>
+                </form>
             </div>
+        </div>
+
+        <div id="deleteModal" class="hidden fixed inset-0 bg-navy-950/80 backdrop-blur-sm flex items-center justify-center z-[70]">
+             <div class="bg-navy-900 border border-red-500/20 rounded-[2.5rem] p-8 w-96 text-center">
+                <div class="w-20 h-20 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-trash-alt text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Delete Transaction?</h3>
+                <p class="text-gray-400 text-sm mb-8" id="deleteMessage"></p>
+                <div class="flex space-x-3">
+                    <button onclick="hideDeleteModal()" class="flex-1 bg-white/5 text-white py-3 rounded-xl font-bold">CANCEL</button>
+                    <a href="#" id="deleteConfirmLink" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold">DELETE</a>
+                </div>
+             </div>
         </div>
 
         <script>
-            // Modal functions
             function showAddModal() {
-                document.getElementById('addExpenseModal').classList.remove('hidden');
-            }
-
-            function hideAddModal() {
-                document.getElementById('addExpenseModal').classList.add('hidden');
+                document.getElementById('modalTitle').innerText = "Add Expense";
+                document.getElementById('form_action_type').name = "add_expense";
+                document.getElementById('expenseForm').reset();
+                document.getElementById('modal_expense_date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('expenseModal').classList.remove('hidden');
             }
 
             function showEditModal(expense) {
-                document.getElementById('edit_expense_id').value = expense.id;
-                document.getElementById('edit_category_id').value = expense.category_id;
-                document.getElementById('edit_amount').value = expense.amount;
-                document.getElementById('edit_description').value = expense.description || '';
-                document.getElementById('edit_expense_date').value = expense.expense_date;
-                document.getElementById('editExpenseModal').classList.remove('hidden');
+                document.getElementById('modalTitle').innerText = "Edit Transaction";
+                document.getElementById('form_action_type').name = "edit_expense";
+                document.getElementById('modal_expense_id').value = expense.id;
+                document.getElementById('modal_category_id').value = expense.category_id;
+                document.getElementById('modal_amount').value = expense.amount;
+                document.getElementById('modal_description').value = expense.description || '';
+                document.getElementById('modal_expense_date').value = expense.expense_date;
+                document.getElementById('expenseModal').classList.remove('hidden');
             }
 
-            function hideEditModal() {
-                document.getElementById('editExpenseModal').classList.add('hidden');
-            }
+            function hideModal() { document.getElementById('expenseModal').classList.add('hidden'); }
 
-            function confirmDelete(expenseId, amount, date) {
-                document.getElementById('deleteMessage').textContent =
-                    'Are you sure you want to delete the expense of ' + amount + ' from ' + date + '? This action cannot be undone.';
-
-                document.getElementById('deleteConfirmLink').href =
-                    'expenses.php?delete_id=' + expenseId;
-
+            function confirmDelete(id, amount, date) {
+                document.getElementById('deleteMessage').innerText = "Are you sure you want to delete the expense of " + amount + " from " + date + "?";
+                document.getElementById('deleteConfirmLink').href = 'expenses.php?delete_id=' + id;
                 document.getElementById('deleteModal').classList.remove('hidden');
             }
 
-            function hideDeleteModal() {
-                document.getElementById('deleteModal').classList.add('hidden');
+            function hideDeleteModal() { document.getElementById('deleteModal').classList.add('hidden'); }
+
+            // Close modals on outside click
+            window.onclick = function(event) {
+                if (event.target.id == 'expenseModal') hideModal();
+                if (event.target.id == 'deleteModal') hideDeleteModal();
             }
-
-            // Close modals when clicking outside
-            document.addEventListener('click', function (event) {
-                const addModal = document.getElementById('addExpenseModal');
-                const editModal = document.getElementById('editExpenseModal');
-                const deleteModal = document.getElementById('deleteModal');
-
-                if (event.target === addModal) hideAddModal();
-                if (event.target === editModal) hideEditModal();
-                if (event.target === deleteModal) hideDeleteModal();
-            });
-
-            // Show success/error messages and auto-hide after 5 seconds
-            document.addEventListener('DOMContentLoaded', function () {
-                const successMessage = document.querySelector('.bg-green-100');
-                const errorMessage = document.querySelector('.bg-red-100');
-
-                if (successMessage) {
-                    setTimeout(() => {
-                        successMessage.style.display = 'none';
-                    }, 5000);
-                }
-
-                if (errorMessage) {
-                    setTimeout(() => {
-                        errorMessage.style.display = 'none';
-                    }, 5000);
-                }
-
-                // Set today's date as default for add form
-                document.querySelector('input[name="expense_date"]').value = new Date().toISOString().split('T')[0];
-            });
         </script>
     </main>
 </body>
-
 </html>

@@ -1,616 +1,306 @@
 <?php
-// Start session only if not already started
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BudgetTracker - Take Control of Your Finances</title>
+    <title>BudgetTracker - Master Your Money Flow</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        orange: {
-                            500: '#FF6B35',
-                            600: '#E55A2B',
-                            700: '#CC4A23',
-                        },
-                        dark: {
-                            900: '#1a202c',
-                            800: '#2d3748',
-                        }
+                        teal: { 500: '#2DD4BF', 600: '#0D9488' },
+                        navy: { 950: '#050811', 900: '#0B132B', 800: '#1C2541', 700: '#3A506B' }
                     },
-                    fontFamily: {
-                        'inter': ['Inter', 'sans-serif'],
-                    },
+                    fontFamily: { 'sans': ['Plus Jakarta Sans', 'sans-serif'] },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
-                        'fadeIn': 'fadeIn 0.8s ease-in-out',
-                        'slideInUp': 'slideInUp 0.8s ease-out',
-                        'bounceIn': 'bounceIn 1s ease-out',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     }
                 }
             }
         }
     </script>
+
     <style>
         @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-20px);
-            }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
         }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes bounceIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.3);
-            }
-
-            50% {
-                opacity: 1;
-                transform: scale(1.05);
-            }
-
-            70% {
-                transform: scale(0.9);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .gradient-bg {
-            background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #4a5568 100%);
-        }
-
-        .hero-gradient {
-            background: linear-gradient(135deg, #FF6B35 0%, #E55A2B 50%, #CC4A23 100%);
-        }
-
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .feature-icon {
-            background: linear-gradient(135deg, #FF6B35, #E55A2B);
-        }
-
-        .stat-number {
-            background: linear-gradient(135deg, #FF6B35, #E55A2B);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .teal-glow { box-shadow: 0 0 20px rgba(45, 212, 191, 0.2); }
+        .text-gradient { background: linear-gradient(135deg, #2DD4BF 0%, #5BC0BE 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .bg-mesh { background-image: radial-gradient(at 0% 0%, rgba(45, 212, 191, 0.15) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(28, 37, 65, 1) 0, transparent 50%); }
     </style>
 </head>
 
-<body class="font-inter bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <div class="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-wallet text-white text-lg"></i>
-                    </div>
-                    <span class="text-2xl font-bold text-gray-800">BudgetTracker</span>
-                </div>
+<body class="bg-navy-950 text-gray-200 antialiased">
 
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#features"
-                        class="text-gray-600 hover:text-orange-500 transition duration-300 font-medium">Features</a>
-                    <a href="#how-it-works"
-                        class="text-gray-600 hover:text-orange-500 transition duration-300 font-medium">How It Works</a>
-                    <a href="#testimonials"
-                        class="text-gray-600 hover:text-orange-500 transition duration-300 font-medium">Testimonials</a>
+    <nav class="fixed w-full z-50 border-b border-white/5 bg-navy-950/80 backdrop-blur-lg">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-teal-500 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/20">
+                    <i class="fas fa-chart-pie text-navy-900 text-lg"></i>
                 </div>
+                <span class="text-xl font-extrabold tracking-tight text-white">Budget<span class="text-teal-500">Tracker</span></span>
+            </div>
 
-                <div class="flex items-center space-x-4">
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                        <a href="dashboard/index.php"
-                            class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition duration-300 transform hover:scale-105">
-                            Dashboard
-                        </a>
-                    <?php else: ?>
-                        <a href="login.php" class="text-gray-600 hover:text-orange-500 font-medium transition duration-300">
-                            Login
-                        </a>
-                        <a href="register.php"
-                            class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition duration-300 transform hover:scale-105">
-                            Get Started
-                        </a>
-                    <?php endif; ?>
-                </div>
+            <div class="hidden md:flex items-center space-x-10">
+                <a href="#features" class="text-sm font-medium text-gray-400 hover:text-teal-500 transition">Features</a>
+                <a href="#how-it-works" class="text-sm font-medium text-gray-400 hover:text-teal-500 transition">Process</a>
+                <a href="#testimonials" class="text-sm font-medium text-gray-400 hover:text-teal-500 transition">Community</a>
+            </div>
+
+            <div class="flex items-center space-x-5">
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="dashboard/index.php" class="bg-teal-500 hover:bg-teal-400 text-navy-950 px-5 py-2.5 rounded-full font-bold transition transform hover:scale-105">Dashboard</a>
+                <?php else: ?>
+                    <a href="login.php" class="hidden sm:block text-sm font-bold text-gray-300 hover:text-white transition">Sign In</a>
+                    <a href="register.php" class="bg-white/10 hover:bg-white/20 border border-white/10 px-5 py-2.5 rounded-full text-sm font-bold transition">Get Started</a>
+                <?php endif; ?>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="gradient-bg text-white py-20">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col lg:flex-row items-center justify-between">
-                <div class="lg:w-1/2 mb-12 lg:mb-0 animate-fadeIn">
-                    <h1 class="text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                        Take Control of Your
-                        <span class="text-orange-500">Financial Future</span>
-                    </h1>
-                    <p class="text-xl text-gray-300 mb-8 leading-relaxed">
-                        BudgetTracker helps you manage your money effortlessly. Track expenses, set budgets, and achieve
-                        your financial goals with our intuitive platform.
-                    </p>
-                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                        <?php if (isset($_SESSION['user_id'])): ?>
-                            <a href="dashboard/index.php"
-                                class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition duration-300 transform hover:scale-105 text-center">
-                                Go to Dashboard
-                            </a>
-                        <?php else: ?>
-                            <a href="register.php"
-                                class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition duration-300 transform hover:scale-105 text-center">
-                                Start Free Trial
-                            </a>
-                            <a href="#features"
-                                class="border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white px-8 py-4 rounded-lg font-semibold text-lg transition duration-300 text-center">
-                                Learn More
-                            </a>
-                        <?php endif; ?>
+    <section class="relative pt-32 pb-20 overflow-hidden bg-mesh">
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center gap-16">
+                <div class="lg:w-1/2 text-center lg:text-left">
+                    <div class="inline-flex items-center space-x-2 bg-teal-500/10 border border-teal-500/20 px-4 py-2 rounded-full mb-6">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
+                        </span>
+                        <span class="text-teal-500 text-xs font-bold uppercase tracking-widest">v2.0 Now Live</span>
                     </div>
-                    <div class="mt-8 flex items-center space-x-6 text-gray-300">
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-check-circle text-orange-500"></i>
-                            <span>No credit card required</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-check-circle text-orange-500"></i>
-                            <span>Free forever</span>
-                        </div>
+                    <h1 class="text-6xl lg:text-7xl font-extrabold text-white mb-8 leading-[1.1]">
+                        Master Your <br/>
+                        <span class="text-gradient">Money Flow.</span>
+                    </h1>
+                    <p class="text-lg text-gray-400 mb-10 leading-relaxed max-w-xl mx-auto lg:mx-0">
+                        Stop wondering where your money went. Join 10,000+ Nigerians using BudgetTracker to automate their savings and crush financial goals.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+                        <a href="register.php" class="bg-teal-500 hover:bg-teal-400 text-navy-950 px-8 py-4 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-teal-500/20">
+                            Start Free Journey
+                        </a>
+                        <a href="#how-it-works" class="px-8 py-4 rounded-2xl font-bold text-lg border border-white/10 hover:bg-white/5 transition-all text-white">
+                            See How it Works
+                        </a>
                     </div>
                 </div>
 
-                <div class="lg:w-1/2 relative animate-float">
-                    <div class="relative">
-                        <div class="bg-white rounded-2xl shadow-2xl p-6 transform rotate-3">
-                            <div class="bg-gray-800 rounded-lg p-4 mb-4">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h3 class="text-white font-semibold">Monthly Budget</h3>
-                                    <span class="text-green-400 font-bold">₦125,000</span>
+                <div class="lg:w-1/2 animate-float">
+                    <div class="glass p-4 rounded-[2.5rem] relative">
+                        <div class="absolute -top-10 -right-10 w-32 h-32 bg-teal-500/20 blur-3xl rounded-full"></div>
+                        <div class="bg-navy-900 rounded-[2rem] p-8 border border-white/5">
+                            <div class="flex justify-between items-center mb-10">
+                                <div>
+                                    <p class="text-gray-500 text-xs uppercase tracking-tighter mb-1">Total Balance</p>
+                                    <h3 class="text-3xl font-bold text-white tracking-tight">₦450,000.00</h3>
                                 </div>
-                                <div class="space-y-3">
-                                    <div>
-                                        <div class="flex justify-between text-sm text-gray-300 mb-1">
-                                            <span>Food & Dining</span>
-                                            <span>₦45,000 / ₦50,000</span>
-                                        </div>
-                                        <div class="w-full bg-gray-700 rounded-full h-2">
-                                            <div class="bg-green-500 h-2 rounded-full" style="width: 75%"></div>
-                                        </div>
+                                <div class="w-12 h-12 bg-teal-500/10 rounded-2xl flex items-center justify-center">
+                                    <i class="fas fa-wallet text-teal-500"></i>
+                                </div>
+                            </div>
+                            <div class="space-y-6">
+                                <div class="bg-navy-800/50 p-5 rounded-2xl border border-white/5">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-sm font-medium">Entertainment</span>
+                                        <span class="text-teal-500 text-sm font-bold">80%</span>
                                     </div>
-                                    <div>
-                                        <div class="flex justify-between text-sm text-gray-300 mb-1">
-                                            <span>Transportation</span>
-                                            <span>₦15,000 / ₦20,000</span>
-                                        </div>
-                                        <div class="w-full bg-gray-700 rounded-full h-2">
-                                            <div class="bg-orange-500 h-2 rounded-full" style="width: 75%"></div>
-                                        </div>
+                                    <div class="h-2 w-full bg-navy-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-teal-500" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="p-4 bg-navy-800/30 rounded-2xl border border-white/5">
+                                        <p class="text-gray-500 text-[10px] uppercase mb-1">Income</p>
+                                        <p class="text-white font-bold">+₦120k</p>
+                                    </div>
+                                    <div class="p-4 bg-navy-800/30 rounded-2xl border border-white/5">
+                                        <p class="text-gray-500 text-[10px] uppercase mb-1">Spent</p>
+                                        <p class="text-red-400 font-bold">-₦45k</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- Floating elements -->
-                        <div
-                            class="absolute -top-4 -right-4 bg-orange-500 text-white p-3 rounded-xl shadow-lg animate-bounceIn">
-                            <i class="fas fa-chart-pie text-xl"></i>
-                        </div>
-                        <div class="absolute -bottom-4 -left-4 bg-green-500 text-white p-3 rounded-xl shadow-lg animate-bounceIn"
-                            style="animation-delay: 0.2s;">
-                            <i class="fas fa-piggy-bank text-xl"></i>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Stats Section -->
-    <section class="bg-white py-16">
+    <section class="py-12 border-y border-white/5 bg-navy-900/50">
         <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-                <div class="animate-slideInUp">
-                    <div class="stat-number text-4xl font-bold mb-2">10,000+</div>
-                    <p class="text-gray-600">Active Users</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <p class="text-3xl font-bold text-white mb-1">10k+</p>
+                    <p class="text-gray-500 text-sm">Active Users</p>
                 </div>
-                <div class="animate-slideInUp" style="animation-delay: 0.1s;">
-                    <div class="stat-number text-4xl font-bold mb-2">₦5.2M+</div>
-                    <p class="text-gray-600">Managed Monthly</p>
+                <div class="text-center">
+                    <p class="text-3xl font-bold text-white mb-1">₦5.2M</p>
+                    <p class="text-gray-500 text-sm">Monthly Volume</p>
                 </div>
-                <div class="animate-slideInUp" style="animation-delay: 0.2s;">
-                    <div class="stat-number text-4xl font-bold mb-2">98%</div>
-                    <p class="text-gray-600">User Satisfaction</p>
+                <div class="text-center">
+                    <p class="text-3xl font-bold text-white mb-1">98%</p>
+                    <p class="text-gray-500 text-sm">Satisfaction</p>
                 </div>
-                <div class="animate-slideInUp" style="animation-delay: 0.3s;">
-                    <div class="stat-number text-4xl font-bold mb-2">24/7</div>
-                    <p class="text-gray-600">Support Available</p>
+                <div class="text-center">
+                    <p class="text-3xl font-bold text-white mb-1">24/7</p>
+                    <p class="text-gray-500 text-sm">Support</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section id="features" class="py-20 bg-gray-50">
+    <section id="features" class="py-24 relative">
         <div class="container mx-auto px-6">
-            <div class="text-center mb-16 animate-fadeIn">
-                <h2 class="text-4xl font-bold text-gray-800 mb-4">Powerful Features for Smart Budgeting</h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Everything you need to take control of your finances
-                    in one beautiful interface</p>
+            <div class="max-w-3xl mx-auto text-center mb-20">
+                <h2 class="text-4xl font-bold text-white mb-6 tracking-tight">Everything You Need to Scale Your Wealth</h2>
+                <p class="text-gray-400 text-lg">We’ve built a suite of tools that work together to simplify your financial life.</p>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Feature 1 -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 card-hover animate-slideInUp">
-                    <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
-                        <i class="fas fa-chart-bar text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Smart Budget Tracking</h3>
-                    <p class="text-gray-600 mb-4">Set custom budgets for different categories and track your spending in
-                        real-time with beautiful visualizations.</p>
-                    <ul class="space-y-2 text-gray-600">
-                        <li class="flex items-center space-x-2">
-                            <i class="fas fa-check text-orange-500"></i>
-                            <span>Real-time expense tracking</span>
-                        </li>
-                        <li class="flex items-center space-x-2">
-                            <i class="fas fa-check text-orange-500"></i>
-                            <span>Category-wise budgeting</span>
-                        </li>
-                        <li class="flex items-center space-x-2">
-                            <i class="fas fa-check text-orange-500"></i>
-                            <span>Progress indicators</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 card-hover animate-slideInUp"
-                    style="animation-delay: 0.1s;">
-                    <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
-                        <i class="fas fa-receipt text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Expense Management</h3>
-                    <p class="text-gray-600 mb-4">Easily add, edit, and categorize expenses. Get insights into your
-                        spending patterns and habits.</p>
-                    <ul class="space-y-2 text-gray-600">
-                        <li class="flex items-center space-x-2">
-                            <i class="fas fa-check text-orange-500"></i>
-                            <span>Quick expense entry</span>
-                        </li>
-                        <li class="flex items-center space-x-2">
-                            <i class="fas fa-check text-orange-500"></i>
-                            <span>Receipt tracking</span>
-                        </li>
-                        <li class="flex items-center space-x-2">
-                            <i class="fas fa-check text-orange-500"></i>
-                            <span>Spending analytics</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 card-hover animate-slideInUp"
-                    style="animation-delay: 0.2s;">
-                    <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
-                        <i class="fas fa-chart-pie text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Detailed Reports</h3>
-                    <p class="text-gray-600 mb-4">Generate comprehensive reports with interactive charts to understand
-                        your financial health better.</p>
-                    <ul class="space-y-2 text-gray-600">
-                        <li class="flex items-center space-x-2">
-                            <i class="fas fa-check text-orange-500"></i>
-                            <span>Interactive charts</span>
-                        </li>
-                        <li class="flex items-center space-x-2">
-                            <i class="fas fa-check text-orange-500"></i>
-                            <span>Monthly comparisons</span>
-                        </li>
-                        <li class="flex items-center space-x-2">
-                            <i class="fas fa-check text-orange-500"></i>
-                            <span>Export capabilities</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="py-20 bg-white">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16 animate-fadeIn">
-                <h2 class="text-4xl font-bold text-gray-800 mb-4">How BudgetTracker Works</h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Get started in minutes and transform your financial
-                    management</p>
-            </div>
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="text-center animate-slideInUp">
-                    <div class="w-20 h-20 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-white text-2xl font-bold">1</span>
+                <div class="glass p-10 rounded-[2rem] hover:bg-white/5 transition group">
+                    <div class="w-14 h-14 bg-teal-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition">
+                        <i class="fas fa-layer-group text-teal-500 text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">Sign Up & Set Budgets</h3>
-                    <p class="text-gray-600">Create your account and set up your budget categories with custom limits.
-                    </p>
-                </div>
-
-                <div class="text-center animate-slideInUp" style="animation-delay: 0.2s;">
-                    <div class="w-20 h-20 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-white text-2xl font-bold">2</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">Track Expenses</h3>
-                    <p class="text-gray-600">Add your expenses as they happen and categorize them for better tracking.
-                    </p>
-                </div>
-
-                <div class="text-center animate-slideInUp" style="animation-delay: 0.4s;">
-                    <div class="w-20 h-20 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-white text-2xl font-bold">3</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">Analyze & Improve</h3>
-                    <p class="text-gray-600">Use our insights and reports to make better financial decisions.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="py-20 bg-gray-900 text-white">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16 animate-fadeIn">
-                <h2 class="text-4xl font-bold mb-4">What Our Users Say</h2>
-                <p class="text-xl text-gray-300 max-w-2xl mx-auto">Join thousands of satisfied users who transformed
-                    their financial lives</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-gray-800 rounded-2xl p-8 card-hover animate-slideInUp">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
-                            <span class="text-white font-bold">A</span>
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="font-bold">Adeola Johnson</h4>
-                            <p class="text-gray-400 text-sm">Small Business Owner</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-300">"BudgetTracker helped me save 30% more each month. The expense
-                        categorization is a game-changer!"</p>
-                    <div class="flex text-orange-500 mt-4">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                </div>
-
-                <div class="bg-gray-800 rounded-2xl p-8 card-hover animate-slideInUp" style="animation-delay: 0.1s;">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
-                            <span class="text-white font-bold">C</span>
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="font-bold">Chinedu Okoro</h4>
-                            <p class="text-gray-400 text-sm">Freelancer</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-300">"As a freelancer, tracking irregular income was challenging. BudgetTracker
-                        made it simple and effective."</p>
-                    <div class="flex text-orange-500 mt-4">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                </div>
-
-                <div class="bg-gray-800 rounded-2xl p-8 card-hover animate-slideInUp" style="animation-delay: 0.2s;">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
-                            <span class="text-white font-bold">F</span>
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="font-bold">Funke Adebayo</h4>
-                            <p class="text-gray-400 text-sm">Student</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-300">"Perfect for students! I can now manage my allowance and save for important
-                        things."</p>
-                    <div class="flex text-orange-500 mt-4">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="py-20 hero-gradient text-white">
-        <div class="container mx-auto px-6 text-center">
-            <h2 class="text-4xl font-bold mb-6 animate-fadeIn">Ready to Transform Your Finances?</h2>
-            <p class="text-xl mb-8 max-w-2xl mx-auto animate-fadeIn">Join thousands of users who have taken control of
-                their financial future with BudgetTracker</p>
-            <div class="animate-bounceIn">
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="dashboard/index.php"
-                        class="bg-white text-orange-500 hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold text-lg transition duration-300 transform hover:scale-105 inline-block">
-                        Go to Dashboard
-                    </a>
-                <?php else: ?>
-                    <a href="register.php"
-                        class="bg-white text-orange-500 hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold text-lg transition duration-300 transform hover:scale-105 inline-block">
-                        Start Your Free Journey
-                    </a>
-                <?php endif; ?>
-            </div>
-            <p class="mt-4 text-orange-100 animate-fadeIn">No credit card required • Free forever • Setup in 2 minutes
-            </p>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-12">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-wallet text-white"></i>
-                        </div>
-                        <span class="text-xl font-bold">BudgetTracker</span>
-                    </div>
-                    <p class="text-gray-400">Taking control of your financial future, one budget at a time.</p>
-                </div>
-
-                <div>
-                    <h4 class="font-bold mb-4">Product</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#features" class="hover:text-orange-500 transition duration-300">Features</a></li>
-                        <li><a href="#how-it-works" class="hover:text-orange-500 transition duration-300">How It
-                                Works</a></li>
-                        <li><a href="#testimonials"
-                                class="hover:text-orange-500 transition duration-300">Testimonials</a></li>
+                    <h3 class="text-xl font-bold text-white mb-4">Smart Categorization</h3>
+                    <p class="text-gray-400 leading-relaxed mb-6">Automatically organize your spending into groups like Food, Rent, and Leisure.</p>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li class="flex items-center gap-2"><i class="fas fa-check-circle text-teal-500"></i> Auto-tagging</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check-circle text-teal-500"></i> Custom Categories</li>
                     </ul>
                 </div>
-
-                <div>
-                    <h4 class="font-bold mb-4">Support</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-orange-500 transition duration-300">Help Center</a></li>
-                        <li><a href="#" class="hover:text-orange-500 transition duration-300">Contact Us</a></li>
-                        <li><a href="#" class="hover:text-orange-500 transition duration-300">Privacy Policy</a></li>
+                <div class="glass p-10 rounded-[2rem] hover:bg-white/5 transition group">
+                    <div class="w-14 h-14 bg-teal-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition">
+                        <i class="fas fa-bell text-teal-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Smart Alerts</h3>
+                    <p class="text-gray-400 leading-relaxed mb-6">Get notified when you are approaching your budget limits before you overspend.</p>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li class="flex items-center gap-2"><i class="fas fa-check-circle text-teal-500"></i> Spending Alerts</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check-circle text-teal-500"></i> Goal Milestones</li>
                     </ul>
                 </div>
+                <div class="glass p-10 rounded-[2rem] hover:bg-white/5 transition group">
+                    <div class="w-14 h-14 bg-teal-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition">
+                        <i class="fas fa-file-invoice-dollar text-teal-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-4">Detailed Reports</h3>
+                    <p class="text-gray-400 leading-relaxed mb-6">Export PDF and CSV reports of your monthly performance for accounting.</p>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li class="flex items-center gap-2"><i class="fas fa-check-circle text-teal-500"></i> PDF/CSV Export</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check-circle text-teal-500"></i> Historical Trends</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
 
+    <section id="testimonials" class="py-24 bg-navy-900/30">
+        <div class="container mx-auto px-6">
+            <h2 class="text-center text-3xl font-bold mb-16">Trusted by Thousands</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass p-8 rounded-3xl">
+                    <div class="flex gap-1 text-teal-500 mb-4">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-400 italic mb-6">"Finally an app that understands the Nigerian economy. The naira tracking is perfect."</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-teal-500/20 rounded-full"></div>
+                        <div>
+                            <p class="text-white font-bold text-sm">Ade Johnson</p>
+                            <p class="text-gray-500 text-xs">Business Owner</p>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+    </section>
+
+    <section class="py-24">
+        <div class="container mx-auto px-6">
+            <div class="bg-gradient-to-r from-teal-500 to-teal-600 rounded-[3rem] p-12 text-center relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+                <div class="relative z-10">
+                    <h2 class="text-navy-950 text-4xl font-extrabold mb-6">Take Control of Your Future Today.</h2>
+                    <p class="text-navy-900/70 text-lg mb-10 max-w-xl mx-auto font-medium">No hidden fees. No credit cards. Just pure financial freedom at your fingertips.</p>
+                    <a href="register.php" class="bg-navy-950 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition shadow-2xl">
+                        Create Your Free Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-20 border-t border-white/5">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-pie text-navy-900 text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white tracking-tight">BudgetTracker</span>
+                    </div>
+                    <p class="text-gray-500 text-sm leading-relaxed">Modern personal finance tools designed for the next generation of savers.</p>
+                </div>
                 <div>
-                    <h4 class="font-bold mb-4">Connect</h4>
-                    <div class="flex space-x-4">
-                        <a href="#"
-                            class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-orange-500 transition duration-300">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-orange-500 transition duration-300">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-orange-500 transition duration-300">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
+                    <h4 class="text-white font-bold mb-6">Product</h4>
+                    <ul class="space-y-4 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-teal-500 transition">Mobile App</a></li>
+                        <li><a href="#" class="hover:text-teal-500 transition">Security</a></li>
+                        <li><a href="#" class="hover:text-teal-500 transition">Pricing</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-6">Support</h4>
+                    <ul class="space-y-4 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-teal-500 transition">Help Center</a></li>
+                        <li><a href="#" class="hover:text-teal-500 transition">API Docs</a></li>
+                        <li><a href="#" class="hover:text-teal-500 transition">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-6">Social</h4>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-xl bg-navy-900 border border-white/5 flex items-center justify-center hover:border-teal-500/50 transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-xl bg-navy-900 border border-white/5 flex items-center justify-center hover:border-teal-500/50 transition"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
             </div>
-
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2025 BudgetTracker. All rights reserved. Designed By ❤️ Kefas.</p>
+            <div class="text-center text-gray-600 text-xs border-t border-white/5 pt-10">
+                &copy; 2026 BudgetTracker. Built By ❤️ Kefas.
             </div>
         </div>
     </footer>
 
     <script>
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
+        // Smooth scroll and visibility observer (as in original)
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.animationPlayState = 'running';
-                    observer.unobserve(entry.target);
+                    entry.target.classList.add('opacity-100');
+                    entry.target.classList.remove('opacity-0', 'translate-y-10');
                 }
             });
-        }, observerOptions);
+        }, { threshold: 0.1 });
 
-        // Observe all animated elements
-        document.querySelectorAll('.animate-fadeIn, .animate-slideInUp, .animate-bounceIn').forEach(el => {
-            el.style.animationPlayState = 'paused';
-            observer.observe(el);
-        });
-
-        // Add scroll effect to navbar
-        window.addEventListener('scroll', () => {
-            const nav = document.querySelector('nav');
-            if (window.scrollY > 100) {
-                nav.classList.add('shadow-xl');
-            } else {
-                nav.classList.remove('shadow-xl');
-            }
+        // Apply fade-in to sections
+        document.querySelectorAll('section').forEach(section => {
+            section.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-10');
+            observer.observe(section);
         });
     </script>
 </body>
-
 </html>
