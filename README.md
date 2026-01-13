@@ -1,6 +1,6 @@
 # Budget Tracker
 
-![Project Banner](screenshot/home.png)
+![Project Banner](http://budget-tracker.ceekeey.name.ng/screenshot/home.png)
 
 ## 📌 Description
 
