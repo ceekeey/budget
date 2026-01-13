@@ -1,6 +1,6 @@
-# Project Name
+# Budget Tracker
 
-![Project Banner]('http://budget-tracker.ceekeey.name.ng/screenshot/home.png')
+![Project Banner](screenshot/home.png)
 
 ## 📌 Description
 
